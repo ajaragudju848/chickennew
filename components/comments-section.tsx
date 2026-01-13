@@ -21,6 +21,10 @@ export default async function CommentsSection() {
   const totalReplies = comments.reduce((acc, comment) => acc + comment.replies.length, 0)
   const totalInteractions = totalComments + totalReplies
 
+  // Генерируем URL для страницы
+  const pageUrl = `https://chickenroad.pk/reviews`
+  const pageHeadline = "Chicken Road Casino Player Reviews and Discussions"
+
   return (
     <section id="reviews" className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -117,7 +121,7 @@ export default async function CommentsSection() {
             </div>
           </div>
 
-          {/* SEO schema */}
+          {/* SEO schema - FIXED VERSION */}
           <Script
             id="comments-schema"
             type="application/ld+json"
@@ -125,24 +129,85 @@ export default async function CommentsSection() {
               __html: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "DiscussionForumPosting",
-                name: "Discussion Forum Chicken Road Casino",
-                commentCount: comments.length,
-                interactionStatistic: {
-                  "@type": "InteractionCounter",
-                  interactionType: "https://schema.org/CommentAction",
-                  userInteractionCount: totalInteractions
+                "headline": pageHeadline,
+                "url": pageUrl,
+                "datePublished": new Date().toISOString(),
+                "author": {
+                  "@type": "Organization",
+                  "name": "Chicken Road Casino",
+                  "url": "https://chickenroad.pk"
                 },
-                comment: comments.map(c => ({
+                "text": `Chicken Road Casino player reviews, discussions, and experiences. ${comments.length} discussions with ${totalInteractions} total interactions.`,
+                "image": "https://chickenroad.pk/og-image.jpg", // Добавь реальный URL изображения
+                "commentCount": totalComments,
+                "interactionStatistic": {
+                  "@type": "InteractionCounter",
+                  "interactionType": "https://schema.org/CommentAction",
+                  "userInteractionCount": totalInteractions
+                },
+                "comment": comments.map(c => ({
                   "@type": "Comment",
-                  author: c.author,
-                  text: c.content,
-                  dateCreated: c.date,
-                  interactionStatistic: {
+                  "author": {
+                    "@type": "Person",
+                    "name": c.author || "Anonymous Player"
+                  },
+                  "text": c.content,
+                  "dateCreated": c.date,
+                  "interactionStatistic": {
                     "@type": "InteractionCounter",
-                    interactionType: "https://schema.org/ReplyAction",
-                    userInteractionCount: c.replies.length
+                    "interactionType": "https://schema.org/ReplyAction",
+                    "userInteractionCount": c.replies.length
                   }
                 })),
+                "mainEntity": {
+                  "@type": "Question",
+                  "name": "What do players think about Chicken Road Casino?",
+                  "text": "Player reviews, ratings, and discussions about Chicken Road Casino gaming experience.",
+                  "answerCount": totalComments,
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `Based on player discussions: ${comments.slice(0, 3).map(c => c.content.substring(0, 100) + "...").join(" ")}`,
+                    "dateCreated": comments[0]?.date || new Date().toISOString(),
+                    "author": {
+                      "@type": "Organization",
+                      "name": "Chicken Road Casino Community"
+                    }
+                  }
+                }
+              }),
+            }}
+          />
+
+          {/* Дополнительно: Schema для QAPage */}
+          <Script
+            id="qa-schema"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "QAPage",
+                "mainEntity": {
+                  "@type": "Question",
+                  "name": "Player Reviews and Discussions about Chicken Road Casino",
+                  "text": "Read real player experiences, reviews, and discussions about Chicken Road Casino games.",
+                  "answerCount": totalComments,
+                  "dateCreated": comments[comments.length - 1]?.date || new Date().toISOString(),
+                  "author": {
+                    "@type": "Organization",
+                    "name": "Chicken Road Casino Players"
+                  },
+                  "suggestedAnswer": comments.map(c => ({
+                    "@type": "Answer",
+                    "text": c.content,
+                    "dateCreated": c.date,
+                    "url": `${pageUrl}#comment-${c.id}`,
+                    "author": {
+                      "@type": "Person",
+                      "name": c.author || "Anonymous Player"
+                    },
+                    "upvoteCount": 0
+                  })).slice(0, 10)
+                }
               }),
             }}
           />

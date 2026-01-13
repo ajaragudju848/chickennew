@@ -210,10 +210,10 @@ export default function RootLayout({
         />
         
         {/* Структурированные данные для FAQ */}
-        <script
+        {/* <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
-        />
+        /> */}
         
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-EV8P96FKL1"></script>
